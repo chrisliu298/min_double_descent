@@ -13,7 +13,7 @@ from tqdm import trange
 
 seed = 42
 N = 6  # Number of training/test samples
-P_max = N * 5  # Maximum number of random features
+P_max = N * 10  # Maximum number of random features
 P_step = max(P_max // 50, 1)  # Step size for number of random features
 d = 2  # Number of features
 num_trials = 10000  # Number of trials to average over
