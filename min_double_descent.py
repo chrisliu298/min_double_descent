@@ -36,7 +36,7 @@ x_tr, x_te, y_tr, y_te = split(x, y, test_size=0.5, random_state=seed)
 
 # Visualize the dataset
 def visualize(x_tr, y_tr, x_te, y_te):
-    plt.figure(figsize=(4, 4), constrained_layout=True)
+    plt.figure(figsize=(3.2, 3.2), constrained_layout=True)
     plt.scatter(
         x_tr[y_tr[:, 0] == 1, 0],
         x_tr[y_tr[:, 0] == 1, 1],
@@ -132,7 +132,6 @@ def plot(output):
     axes[3].plot(output["p_over_n"], output["W1_norm"])
     axes[3].axvline(x=1, color="r", linestyle="--")
     axes[3].set(xlabel=r"$P/N$", ylabel=r"$\|W_1\|_2$", yscale="log")
-    plt.tight_layout()
     plt.savefig("min_double_descent.png", bbox_inches="tight", dpi=300)
     plt.show()
 
