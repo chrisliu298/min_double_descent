@@ -4,6 +4,9 @@ on tanh random features. The dataset is a linearly separable
 classification problem with 2 features and 2 classes.
 """
 
+# %matplotlib inline
+# %config InlineBackend.figure_format = "retina"
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from numpy import argmax, eye, linalg, mean, random, tanh, unique
@@ -13,7 +16,7 @@ from tqdm import trange
 
 seed = 42
 N = 6  # Number of training/test samples
-P_max = N * 10  # Maximum number of random features
+P_max = N * 5  # Maximum number of random features
 P_step = max(P_max // 50, 1)  # Step size for number of random features
 d = 2  # Number of features
 num_trials = 10000  # Number of trials to average over
@@ -29,6 +32,42 @@ x, y = make_classification(
 )
 y = eye(unique(y).shape[0])[y]  # One-hot encode the labels
 x_tr, x_te, y_tr, y_te = split(x, y, test_size=0.5, random_state=seed)
+
+
+# Visualize the dataset
+def visualize(x_tr, y_tr, x_te, y_te):
+    plt.figure(figsize=(4, 4), constrained_layout=True)
+    plt.scatter(
+        x_tr[y_tr[:, 0] == 1, 0],
+        x_tr[y_tr[:, 0] == 1, 1],
+        label="Train Class 0",
+        c="tab:orange",
+        marker="x",
+    )
+    plt.scatter(
+        x_tr[y_tr[:, 1] == 1, 0],
+        x_tr[y_tr[:, 1] == 1, 1],
+        label="Train Class 1",
+        c="tab:blue",
+        marker="x",
+    )
+    plt.scatter(
+        x_te[y_te[:, 0] == 1, 0],
+        x_te[y_te[:, 0] == 1, 1],
+        label="Test Class 0",
+        c="tab:orange",
+        marker="o",
+    )
+    plt.scatter(
+        x_te[y_te[:, 1] == 1, 0],
+        x_te[y_te[:, 1] == 1, 1],
+        label="Test Class 1",
+        c="tab:blue",
+        marker="o",
+    )
+    plt.legend()
+    plt.savefig("dataset.png", bbox_inches="tight", dpi=300)
+    plt.show()
 
 
 def cond_number(x):
@@ -47,7 +86,7 @@ mse_loss = lambda y, y_pred: mean((y - y_pred) ** 2)
 ridge = lambda X, y, a=1e-8: linalg.inv(X.T @ X + a * eye(X.shape[1])) @ X.T @ y
 
 
-def main(x_tr, y_tr, x_te, y_te, P_max, P_step, num_trials):
+def make_double_descent(x_tr, y_tr, x_te, y_te, P_max, P_step, num_trials):
     output = []
     for _ in trange(num_trials):
         W0_ = random_matrix(d, P_max)
@@ -72,7 +111,7 @@ def main(x_tr, y_tr, x_te, y_te, P_max, P_step, num_trials):
 
 
 def plot(output):
-    _, axes = plt.subplots(1, 4, figsize=(16, 4), sharex=True)
+    _, axes = plt.subplots(1, 4, figsize=(12, 3), sharex=True, constrained_layout=True)
     # Plot error
     axes[0].plot(output["p_over_n"], 1 - output["tr_acc"], label="Train")
     axes[0].plot(output["p_over_n"], 1 - output["te_acc"], label="Test")
@@ -94,8 +133,9 @@ def plot(output):
     axes[3].axvline(x=1, color="r", linestyle="--")
     axes[3].set(xlabel=r"$P/N$", ylabel=r"$\|W_1\|_2$", yscale="log")
     plt.tight_layout()
-    plt.savefig("min_double_descent.pdf", bbox_inches="tight")
+    plt.savefig("min_double_descent.png", bbox_inches="tight", dpi=300)
     plt.show()
 
 
-plot(main(x_tr, y_tr, x_te, y_te, P_max, P_step, num_trials))
+visualize(x_tr, y_tr, x_te, y_te)
+plot(make_double_descent(x_tr, y_tr, x_te, y_te, P_max, P_step, num_trials))
